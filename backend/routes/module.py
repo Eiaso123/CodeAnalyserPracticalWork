@@ -6,7 +6,7 @@ from backend.models import Module, Professeur, TP
 module_bp = Blueprint('module_bp', __name__)
 
 
-@module_bp.route('/api/modules', methods=['GET'])
+@module_bp.route('/modules', methods=['GET'])
 @jwt_required()
 def get_modules():
     modules = Module.query.all()
@@ -20,7 +20,7 @@ def get_modules():
         })
     return jsonify({'modules': modules_list})
 
-@module_bp.route('/api/tp/all', methods=['GET'])
+@module_bp.route('/tp/all', methods=['GET'])
 @jwt_required()
 def get_all_tps():
     tps = TP.query.all()

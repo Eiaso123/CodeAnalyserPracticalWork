@@ -9,4 +9,4 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 @uploads_bp.route('/uploads/<filename>')
 def download_file(filename):
-    return send_from_directory('uploads', filename, as_attachment=True)
+    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment=True)

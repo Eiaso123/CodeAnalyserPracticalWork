@@ -3,7 +3,6 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from backend.extensions import db, bcrypt
 from backend.models import User, Etudiant, Professeur
 import datetime
-from werkzeug.security import generate_password_hash
 import random, time
 
 auth_bp = Blueprint('auth', __name__)
@@ -42,7 +41,7 @@ def register():
         db.session.add(new_prof)
 
     db.session.commit()  
-    token = create_access_token(identity=new_user.id, expires_delta=datetime.timedelta(days=1))
+    token = create_access_token(identity=str(new_user.id), expires_delta=datetime.timedelta(days=1))
 
     return jsonify({
         'token': token,
@@ -64,7 +63,7 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and bcrypt.check_password_hash(user.password, password):
-        token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(days=1))
+        token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
         return jsonify({
             'token': token,
             'user': {
@@ -91,7 +90,7 @@ def verify_token():
         'role': user.role
     }), 200
 
-@auth_bp.route('/api/request-password-reset', methods=['POST'])
+@auth_bp.route('/request-password-reset', methods=['POST'])
 def request_password_reset():
     data = request.get_json() or {}
     email = data.get('email')
@@ -114,7 +113,7 @@ def request_password_reset():
 
     return jsonify({'message': 'Code envoyé'}), 200
 
-@auth_bp.route('/api/verify-reset-code', methods=['POST'])
+@auth_bp.route('/verify-reset-code', methods=['POST'])
 def verify_reset_code():
     data = request.get_json() or {}
     email = data.get('email')
@@ -124,7 +123,7 @@ def verify_reset_code():
         return jsonify({'error': 'Code incorrect ou expiré'}), 400
     return jsonify({'message': 'Code valide'}), 200
 
-@auth_bp.route('/api/reset-password', methods=['POST'])
+@auth_bp.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.get_json() or {}
     email = data.get('email')
@@ -141,7 +140,7 @@ def reset_password():
 
     if not password or not isinstance(password, str):
      return jsonify({'error': 'Mot de passe invalide'}), 400
-    user.password = generate_password_hash(password)
+    user.password = bcrypt.generate_password_hash(password).decode('utf-8')
     db.session.commit()
     reset_codes.pop(email, None)  # Supprimer le code utilisé
 

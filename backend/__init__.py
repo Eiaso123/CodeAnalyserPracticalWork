@@ -1,20 +1,6 @@
-from flask import Flask
-from flask_bcrypt import Bcrypt
-from flask_cors import CORS
-from .models import db, User
-
-# Initialize flask extensions
-bcrypt = Bcrypt()
+from .extensions import bcrypt, db
 
 def create_app():
-    app = Flask(__name__)
-    
-    # Initialize extensions
-    bcrypt.init_app(app)    
-    # Import routes
-    from .routes.auth import auth_bp
+    from .app import create_app as create_flask_app
 
-    # Register blueprints
-    app.register_blueprint(auth_bp, url_prefix='/api')
-    
-    return app
+    return create_flask_app()
